@@ -1,4 +1,5 @@
 import { StudentModel } from "../models/student.model.js";
+import bcrypt from "bcrypt";
 
 //create a new student
 const createStudent = async (body) => {
@@ -33,6 +34,14 @@ const getAllStudents = async () => {
 
 //update student
 const updateStudent = async (id, body) => {
+  if (body.password) {
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+    body.password = hashedPassword; // Thay thế mật khẩu bằng mật khẩu đã hash
+  }
+
+  // Xóa trường msv nếu có trong body
+  delete body.studentId; // Giả sử msv là trường studentId
+
   const updatedStudent = await StudentModel.findByIdAndUpdate(id, body, {
     new: true,
   }).lean();
@@ -47,12 +56,10 @@ const deleteStudent = async (id) => {
 
 // get student profile
 const getStudentProfile = async (query) => {
-  console.log("🚀 ~ getStudentProfile ~ query:", query);
+  // console.log("🚀 ~ getStudentProfile ~ query:", query);
   const student = await StudentModel.findOne(query).select("-password").exec();
   return student;
 };
-
-// get student payment
 
 export {
   createStudent,

@@ -4,7 +4,7 @@ import { findOneStudentWithoutPassword } from "../services/student.service.js";
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startWith("Bearer ")) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ message: "khong tim thay token" });
     }
     const token = authHeader.split(" ")[1];
@@ -25,5 +25,3 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 export { authMiddleware };
-
-
