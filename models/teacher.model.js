@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const TeacherSchema = mongoose.Schema(
   {
+    teacherId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     email: String,
     password: String,
     firstName: String,
@@ -23,7 +28,7 @@ const TeacherSchema = mongoose.Schema(
     ],
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 

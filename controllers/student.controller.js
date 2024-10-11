@@ -105,3 +105,4 @@ studentRouter.put("/update-profile", authMiddleware, async (req, res) => {
 });
 
 export { studentRouter };
+  

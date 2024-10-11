@@ -14,9 +14,7 @@ const authMiddleware = async (req, res, next) => {
     const user = await findOneStudentWithoutPassword({ _id: decodedToken._id });
     console.log("🚀 ~ authMiddleware ~ user:", user);
     if (!user) {
-      return res
-        .status(401)
-        .json({ message: "khong tim thay student thro _id" });
+      return res.status(401).json({ message: "khong tim thay user thro _id" });
     }
     res.user = user;
     next();
