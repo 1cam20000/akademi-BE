@@ -83,7 +83,7 @@ studentRouter.get("/profile", authMiddleware, async (req, res) => {
   }
 });
 
-// Route cập nhật thông tin cá nhân
+// student cập nhật thông tin cá nhân
 studentRouter.put("/update-profile", authMiddleware, async (req, res) => {
   const studentId = res.user._id;
   const updateData = req.body;

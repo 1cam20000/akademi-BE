@@ -26,6 +26,13 @@ const findOneStudentWithoutPassword = async (query) => {
   return student;
 };
 
+const getStudentProfileByStudentId = async (studentId) => {
+  const student = await StudentModel.findOne({ studentId: studentId })
+    .select("-password")
+    .exec();
+  return student;
+};
+
 //get all students
 const getAllStudents = async () => {
   const students = await StudentModel.find().exec();
@@ -36,11 +43,11 @@ const getAllStudents = async () => {
 const updateStudent = async (id, body) => {
   if (body.password) {
     const hashedPassword = await bcrypt.hash(body.password, 10);
-    body.password = hashedPassword; 
+    body.password = hashedPassword;
   }
 
   // Xóa trường msv nếu có trong body
-  delete body.studentId; 
+  delete body.studentId;
 
   const updatedStudent = await StudentModel.findByIdAndUpdate(id, body, {
     new: true,
@@ -68,4 +75,5 @@ export {
   updateStudent,
   deleteStudent,
   getStudentProfile,
+  getStudentProfileByStudentId,
 };

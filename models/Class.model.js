@@ -4,8 +4,23 @@ const classSchema = new Schema(
   {
     grade: {
       type: String,
-      required: [true, "grade is required"],
+      required: [true, "Grade is required"],
       unique: true,
+    },
+    teacher: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Teacher",  
+      required: [true, "Teacher is required"],
+    },
+    students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",  
+      },
+    ],
+    isDelete: {
+      type: Boolean,
+      default: false, 
     },
   },
   {
@@ -13,6 +28,6 @@ const classSchema = new Schema(
   }
 );
 
-const ClassModel = mongoose.model("class", classSchema);
+const ClassModel = mongoose.model("Class", classSchema);
 
 export { ClassModel };

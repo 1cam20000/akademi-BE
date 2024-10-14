@@ -1,69 +1,114 @@
 import { ClassModel } from "../models/Class.model.js";
+import { TeacherModel } from "../models/teacher.model.js";
 
+// Lấy tất cả các lớp học
 const getAllClasses = async (req, res) => {
   try {
-    // const body = res.body;
-    // console.log(body);
     const allClasses = await ClassModel.find({});
-
     res.status(200).json({
-      message: "Get all classes successfully ",
+      message: "Lấy tất cả lớp học thành công",
       data: allClasses,
     });
-
-    console.log(allClasses);
   } catch (error) {
     res.status(400).json({
-      message: `Get classes controller error: ${error.message}`,
+      message: `Lỗi khi lấy lớp học: ${error.message}`,
     });
   }
 };
 
-const addClasses = async (req, res) => {
-  const { grade } = req.body;
-
+// Admin thêm lớp học
+const addClassesByAdmin = async (req, res) => {
+  const { grade, teacher } = req.body;
   try {
-    if (!grade) {
-      throw new Error("Please fill class name");
+    if (!grade || !teacher) {
+      throw new Error(
+        "Vui lòng cung cấp đầy đủ thông tin lớp học và giáo viên"
+      );
     }
 
+    // Kiểm tra xem lớp học đã tồn tại chưa
     const existingClass = await ClassModel.findOne({ grade });
-
     if (existingClass) {
-      throw new Error("Class is already added");
+      throw new Error("Lớp học đã tồn tại");
     }
 
-    const newClass = new ClassModel(req.body);
+    // Tìm giáo viên dựa trên ID
+    const teacherData = await TeacherModel.findById(teacher);
+    if (!teacherData) {
+      throw new Error("Không tìm thấy giáo viên");
+    }
+
+    // Tạo lớp học mới với mảng học sinh rỗng
+    const newClass = new ClassModel({
+      grade,
+      teacher,
+      students: [], 
+    });
     await newClass.save();
+
+    teacherData.teacherClass.push(newClass._id);
+    await teacherData.save();
+
     res.status(201).json({
-      message: "Add new class successfully!",
+      message: "Thêm lớp học thành công!",
       data: {
         _id: newClass._id,
+        grade: newClass.grade,
+        teacherName: teacherData.firstName + " " + teacherData.lastName, // Trả về tên của giáo viên
+        students: newClass.students,
       },
     });
   } catch (error) {
     res.status(400).json({
-      message: `Add class controller error: ${error.message}`,
+      message: `Lỗi khi thêm lớp học: ${error.message}`,
     });
   }
 };
 
+// Xóa lớp học
 const deleteClasses = async (req, res) => {
   try {
-    await ClassModel.findOneAndDelete({
+    const classToDelete = await ClassModel.findOneAndDelete({
       _id: req.body.classId,
     });
 
-    // const result = await StudentModel.findByIdAndDelete(req.params.id)
+    if (!classToDelete) {
+      throw new Error("Không tìm thấy lớp học để xóa");
+    }
 
     res.status(201).json({
-      message: "Delete class successfully",
+      message: "Xóa lớp học thành công",
     });
   } catch (error) {
     res.status(400).json({
-      message: `Delete class controller error: ${error.message}`,
+      message: `Lỗi khi xóa lớp học: ${error.message}`,
     });
   }
 };
 
-export { getAllClasses, addClasses, deleteClasses };
+// Giáo viên thêm học sinh vào lớp
+const addStudentToClass = async (classId, studentId, teacherId) => {
+  const classData = await ClassModel.findById(classId);
+
+  if (!classData) {
+    throw new Error("Không tìm thấy lớp học");
+  }
+
+  // Kiểm tra giáo viên có quyền thêm học sinh không
+  if (classData.teacher.toString() !== teacherId.toString()) {
+    throw new Error("Bạn không có quyền thêm học sinh vào lớp này");
+  }
+
+  // Kiểm tra nếu học sinh đã có trong lớp
+  if (classData.students.includes(studentId)) {
+    throw new Error("Học sinh đã có trong lớp");
+  }
+
+  // Thêm học sinh vào lớp
+  classData.students.push(studentId);
+  await classData.save();
+
+  return classData;
+};
+
+export { getAllClasses, addClassesByAdmin, deleteClasses, addStudentToClass };
