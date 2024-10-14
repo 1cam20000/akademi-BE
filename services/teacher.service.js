@@ -1,11 +1,15 @@
 import { TeacherModel } from "../models/teacher.model.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { ClassModel } from "../models/Class.model.js";
+import { StudentModel } from "../models/student.model.js";
 
 const getAllTeachers = async (req, res) => {
   try {
     const allTeachers = await TeacherModel.find({});
 
     res.status(200).json({
-      message: "Get all students successfully ",
+      message: "Get all teacher successfully ",
       data: allTeachers,
     });
   } catch (error) {
@@ -32,22 +36,111 @@ const createTeacher = async (teacherData) => {
   }
 };
 
-const updateTeachers = async (req, res) => {
+// Đăng nhập giáo viên và tạo token
+const teacherLogin = async (req, res) => {
+  const { teacherId, password } = req.body;
+
   try {
-    await TeacherModel.findOneAndUpdate(
-      {
-        _id: req.body.teacherId,
-      },
-      req.body.payload
-    );
-    res.status(201).json({
-      message: "Update teacher's information successfully",
-    });
+    // Tìm giáo viên theo teacherId
+    const teacher = await TeacherModel.findOne({ teacherId });
+
+    if (teacher) {
+      // Kiểm tra mật khẩu
+      const checkPassword = await bcrypt.compare(password, teacher.password);
+
+      if (checkPassword) {
+        const {
+          teacherId,
+          firstName,
+          lastName,
+          email,
+          phone,
+          address,
+          degree,
+          _id,
+        } = teacher;
+
+        // Tạo payload chứa thông tin giáo viên
+        const payload = {
+          teacherId,
+          firstName,
+          lastName,
+          email,
+          phone,
+          address,
+          degree,
+          _id,
+        };
+
+        // Tạo token với thông tin giáo viên
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: "7d", // Token có thời hạn 7 ngày
+        });
+
+        // Trả về token
+        res.json({ token });
+      } else {
+        return res.status(400).json({ message: "Password incorrect!" });
+      }
+    } else {
+      return res.status(400).json({ message: "Teacher ID not found!" });
+    }
   } catch (error) {
-    res.status(400).json({
-      message: `Update teacher controller error: ${error.message}`,
+    res.status(500).json({
+      message: `Lỗi khi đăng nhập: ${error.message}`,
     });
   }
+};
+
+// Cập nhật thông tin cá nhân giáo viên
+const updateTeacherProfile = async (teacherId, body) => {
+  const updatedTeacher = await TeacherModel.findByIdAndUpdate(teacherId, body, {
+    new: true,
+  }).select("-password");
+  if (!updatedTeacher) {
+    throw new Error("Không thể cập nhật giáo viên");
+  }
+  return updatedTeacher;
+};
+
+// Lấy danh sách các lớp mà giáo viên đang quản lý
+const getTeacherClasses = async (teacherId) => {
+  const classes = await ClassModel.find({ teacher: teacherId });
+  if (!classes) {
+    throw new Error("Không tìm thấy lớp học");
+  }
+  return classes;
+};
+
+// Lấy danh sách học sinh của lớp giáo viên đang quản lý
+const getClassStudents = async (teacherId, classId) => {
+  try {
+    const classData = await ClassModel.findOne({
+      _id: classId,
+      teacher: teacherId,
+    }).populate("students");
+
+
+    if (!classData) {
+      throw new Error(
+        "Không tìm thấy lớp hoặc bạn không có quyền truy cập lớp này"
+      );
+    }
+
+    return classData.students;
+  } catch (error) {
+    console.error("Lỗi khi truy vấn lớp:", error);
+    throw error; // Ném lại lỗi để có thể xử lý ở bên ngoài
+  }
+};
+
+// Lấy thông tin chi tiết của học sinh trong lop
+const getStudentDetails = async (studentId) => {
+  const student = await StudentModel.findById(studentId).select("-password");
+  if (!student) {
+    throw new Error("Không tìm thấy học sinh");
+  }
+  return student;
 };
 
 const deleteTeachers = async (req, res) => {
@@ -71,10 +164,24 @@ const findOneTeacher = async (filter) => {
   return await TeacherModel.findOne(filter);
 };
 
+// Lấy thông tin cá nhân giáo viên
+const getTeacherProfile = async (teacherId) => {
+  const teacher = await TeacherModel.findById(teacherId).select("-password");
+  if (!teacher) {
+    throw new Error("Không tìm thấy giáo viên");
+  }
+  return teacher;
+};
+
 export {
   getAllTeachers,
   createTeacher,
-  updateTeachers,
   deleteTeachers,
   findOneTeacher,
+  getTeacherProfile,
+  teacherLogin,
+  updateTeacherProfile,
+  getTeacherClasses,
+  getClassStudents,
+  getStudentDetails,
 };

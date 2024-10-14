@@ -18,9 +18,20 @@ const StudentSchema = mongoose.Schema(
     studentTeacher: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "teacher",
+        ref: "Teacher",
       },
     ],
+    classes: [
+      {
+        classId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Class",
+        },
+        className: { type: String, default: "Chưa xác định" },
+        year: { type: String, default: "Chưa xác định" },
+      },
+    ],
+
     isDelete: {
       type: Boolean,
       default: false,
@@ -31,6 +42,6 @@ const StudentSchema = mongoose.Schema(
   }
 );
 
-const StudentModel = mongoose.model("student", StudentSchema);
+const StudentModel = mongoose.model("Student", StudentSchema);
 
 export { StudentModel, StudentSchema };

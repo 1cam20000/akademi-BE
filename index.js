@@ -4,6 +4,7 @@ import { corsMiddleware } from "./middlewares/corsOption.js";
 import dotenv from "dotenv";
 import { studentRouter } from "./controllers/student.controller.js";
 import { adminRouter } from "./controllers/admin.controller.js";
+import { teacherRouter } from "./controllers/teacher.controller.js";
 
 //
 
@@ -17,6 +18,7 @@ dotenv.config();
 connectMongodb();
 app.use("/student", studentRouter);
 app.use("/admin", adminRouter);
+app.use("/teacher", teacherRouter);
 
 //
 const port = 8888;

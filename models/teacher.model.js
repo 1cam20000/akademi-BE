@@ -1,37 +1,56 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const TeacherSchema = mongoose.Schema(
+const TeacherSchema = new Schema(
   {
     teacherId: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, 
     },
-    email: String,
-    password: String,
-    firstName: String,
-    lastName: String,
-    phone: String,
-    address: String,
-    photo: String,
-    dateOfBirth: String,
-    placeOfBirth: String,
-    university: String,
-    degree: String,
-    startEndDate: String,
+    email: {
+      type: String,
+      required: true,
+      unique: true, 
+    },
+    password: {
+      type: String,
+      required: true, 
+    },
+    firstName: {
+      type: String,
+      required: true, 
+    },
+    lastName: {
+      type: String,
+      required: true, 
+    },
+    phone: String, 
+    address: String, 
+    photo: String, 
+    dateOfBirth: String, 
+    placeOfBirth: String, 
+    university: String, 
+    degree: String, 
+    startEndDate: String, 
     city: String,
     teacherStudent: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "student",
+        ref: "Student", 
+      },
+    ],
+    teacherClass: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class", 
       },
     ],
   },
   {
-    timestamps: true,
+    timestamps: true, 
   }
 );
 
-const TeacherModel = mongoose.model("teacher", TeacherSchema);
+const TeacherModel = mongoose.model("Teacher", TeacherSchema); 
 
 export { TeacherModel, TeacherSchema };
