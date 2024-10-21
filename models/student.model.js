@@ -7,7 +7,7 @@ const StudentSchema = mongoose.Schema(
     password: String,
     firstName: String,
     lastName: String,
-    dateOfBirth: Date,
+    dateOfBirth: String,
     parentName: String,
     phone: String,
     address: String,
@@ -29,6 +29,7 @@ const StudentSchema = mongoose.Schema(
         },
         className: { type: String, default: "Chưa xác định" },
         year: { type: String, default: "Chưa xác định" },
+        grade: { type: Number, default: 0 },
       },
     ],
 

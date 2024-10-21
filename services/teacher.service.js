@@ -120,7 +120,6 @@ const getClassStudents = async (teacherId, classId) => {
       teacher: teacherId,
     }).populate("students");
 
-
     if (!classData) {
       throw new Error(
         "Không tìm thấy lớp hoặc bạn không có quyền truy cập lớp này"
@@ -173,6 +172,65 @@ const getTeacherProfile = async (teacherId) => {
   return teacher;
 };
 
+// cap nhat diem so cho sinh vien
+const updateStudentGrades = async (req, res) => {
+  const { classId } = req.params;
+  const { studentId, grade } = req.body; 
+
+  try {
+    const classData = await ClassModel.findById(classId).populate("students");
+
+    if (!classData) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    const student = await StudentModel.findOne({ studentId });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const classIndex = student.classes.findIndex(c => c.classId.equals(classId));
+
+    if (classIndex !== -1) {
+      student.classes[classIndex].grade = grade; 
+      await student.save();
+      return res.status(200).json({ message: "Grades updated successfully" });
+    } else {
+      return res.status(404).json({ message: "Student not enrolled in this class" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// Phương thức xóa điểm số
+const deleteStudentGrade = async (req, res) => {
+  const { classId } = req.params;
+  const { studentId } = req.body; 
+
+  try {
+    const student = await StudentModel.findOne({ studentId });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const classIndex = student.classes.findIndex(c => c.classId.equals(classId));
+
+    if (classIndex !== -1) {
+      // Xóa điểm số
+      student.classes[classIndex].grade = undefined; // Hoặc student.classes.splice(classIndex, 1); nếu muốn xóa hoàn toàn lớp
+      await student.save();
+      return res.status(200).json({ message: "Grade deleted successfully" });
+    } else {
+      return res.status(404).json({ message: "Student not enrolled in this class" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 export {
   getAllTeachers,
   createTeacher,
@@ -184,4 +242,6 @@ export {
   getTeacherClasses,
   getClassStudents,
   getStudentDetails,
+  deleteStudentGrade,
+  updateStudentGrades,
 };
