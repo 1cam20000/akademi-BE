@@ -2,25 +2,25 @@ import mongoose, { Schema } from "mongoose";
 
 const classSchema = new Schema(
   {
-    grade: {
+    className: {
       type: String,
       required: [true, "Grade is required"],
       unique: true,
     },
     teacher: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Teacher",  
+      ref: "Teacher",
       required: [true, "Teacher is required"],
     },
     students: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Student",  
+        ref: "Student",
       },
     ],
     isDelete: {
       type: Boolean,
-      default: false, 
+      default: false,
     },
   },
   {
