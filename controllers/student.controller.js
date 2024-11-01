@@ -51,6 +51,7 @@ studentRouter.post("/login", async (req, res) => {
         parentAddress,
         payment,
         _id,
+        role: "student",
       };
       // console.log("🚀 ~ studentRouter.post ~ payload:", payload);
 

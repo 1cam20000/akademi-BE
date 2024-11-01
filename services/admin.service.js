@@ -44,7 +44,7 @@ async function loginAdmin(email, password) {
 
     // Tạo token JWT
     const token = jwt.sign(
-      { id: admin._id, email: admin.email },
+      { id: admin._id, email: admin.email, role: "admin" },
       process.env.JWT_SECRET,
       { expiresIn: "7h" }
     );
@@ -167,7 +167,7 @@ const addTeacher = async (teacherData) => {
     const savedTeacher = await newTeacher.save();
 
     return {
-      ...savedTeacher.toObject(), 
+      ...savedTeacher.toObject(),
       teacherId,
     };
   } catch (error) {

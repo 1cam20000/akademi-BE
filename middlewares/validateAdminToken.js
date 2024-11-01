@@ -13,7 +13,11 @@ const validateAdminToken = (req, res, next) => {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     req.admin = verified;
 
-    next(); 
+    if (req.admin.role !== "admin") {
+      return res.status(403).json({ message: "Access Denied: Not an admin" });
+    }
+
+    next();
   } catch (error) {
     res.status(400).json({ message: "Invalid Token: " + error.message });
   }

@@ -5,21 +5,25 @@ const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "khong tim thay token" });
+      return res.status(401).json({ message: "No token provided" });
     }
     const token = authHeader.split(" ")[1];
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("🚀 ~ authMiddleware ~ decodedToken:", decodedToken);
 
     const user = await findOneStudentWithoutPassword({ _id: decodedToken._id });
-    console.log("🚀 ~ authMiddleware ~ user:", user);
     if (!user) {
-      return res.status(401).json({ message: "khong tim thay user thro _id" });
+      return res.status(401).json({ message: "User not found" });
     }
-    res.user = user;
+
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ message: "Access Denied: Not a student" });
+    }
+
+    res.user = user; 
     next();
   } catch (error) {
-    return res.status(404).json({ message: "unauthorized" });
+    return res.status(404).json({ message: "Unauthorized" });
   }
 };
+
 export { authMiddleware };
