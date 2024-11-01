@@ -113,6 +113,16 @@ const getTeacherClasses = async (teacherId) => {
   return classes;
 };
 
+//lay tong so giao vien
+const getTotalTeachers = async () => {
+  try {
+    const totalTeachers = await TeacherModel.countDocuments();
+    return totalTeachers;
+  } catch (error) {
+    throw new Error("Unable to retrieve total teachers");
+  }
+};
+
 // Lấy danh sách học sinh của lớp giáo viên đang quản lý
 const getClassStudents = async (teacherId, classId) => {
   try {
@@ -231,6 +241,7 @@ const deleteStudentGrade = async (req, res) => {
 };
 
 export {
+  getTotalTeachers,
   getAllTeachers,
   createTeacher,
   deleteTeachers,

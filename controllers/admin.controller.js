@@ -10,15 +10,22 @@ import {
   addClassesByAdmin,
   deleteClasses,
   getAllClasses,
+  getTotalClasses,
 } from "../services/Class.service.js";
 import {
   deleteStudent,
   getAllStudents,
   getStudentProfile,
   getStudentProfileByStudentId,
+  getTotalStudents,
   updateStudent,
 } from "../services/student.service.js";
-import { deleteTeachers, getAllTeachers } from "../services/teacher.service.js";
+import {
+  deleteTeachers,
+  getAllTeachers,
+  getTeacherProfile,
+  getTotalTeachers,
+} from "../services/teacher.service.js";
 
 const adminRouter = express.Router();
 
@@ -71,6 +78,23 @@ adminRouter.get("/all-students", validateAdminToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
+  }
+});
+
+//Admin xem tong so hoc sinh
+adminRouter.get("/total-students", validateAdminToken, async (req, res) => {
+  console.log("Received request to get total students");
+
+  try {
+    const totalStudents = await getTotalStudents();
+    console.log("Total students:", totalStudents);
+    res.status(200).json({ totalStudents });
+  } catch (error) {
+    console.error("Error getting total students:", error);
+    res.status(500).json({
+      message: "Đã xảy ra lỗi khi lấy tổng số học sinh.",
+      error: error.message,
+    });
   }
 });
 
@@ -154,6 +178,43 @@ adminRouter.post("/add-teacher", validateAdminToken, async (req, res) => {
 //admin lay danh sach giao vien
 adminRouter.get("/all-teachers", validateAdminToken, getAllTeachers);
 
+// admin lấy thông tin giáo viên
+adminRouter.get(
+  "/teacher-profile/:teacherId",
+  validateAdminToken,
+  async (req, res) => {
+    const { teacherId } = req.params;
+    console.log(`Received request to get profile for teacherId: ${teacherId}`);
+
+    try {
+      const teacherProfile = await getTeacherProfile(teacherId);
+      res.status(200).json(teacherProfile);
+    } catch (error) {
+      console.error("Error getting teacher profile:", error);
+      res
+        .status(500)
+        .json({
+          message: "Đã xảy ra lỗi khi lấy hồ sơ giáo viên.",
+          error: error.message,
+        });
+    }
+  }
+);
+
+// admin xem tong so giao vien
+adminRouter.get("/total-teachers", validateAdminToken, async (req, res) => {
+  try {
+    const totalTeachers = await getTotalTeachers();
+    res.status(200).json({ totalTeachers });
+  } catch (error) {
+    console.error("Error getting total teachers:", error);
+    res.status(500).json({
+      message: "Đã xảy ra lỗi khi lấy tổng số giáo viên.",
+      error: error.message,
+    });
+  }
+});
+
 // admin xóa giáo viên
 adminRouter.delete(
   "/delete-teacher/:teacherId",
@@ -186,6 +247,28 @@ adminRouter.get("/all-classes", validateAdminToken, async (req, res) => {
     await getAllClasses(req, res);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+//Admin xem tong so lop hoc
+adminRouter.get("/total-classes", validateAdminToken, async (req, res) => {
+  try {
+    const totalClasses = await getTotalClasses();
+    if (totalClasses === 0) {
+      return res.status(200).json({
+        message: "Không có lớp học nào trong cơ sở dữ liệu.",
+        totalClasses,
+      });
+    }
+
+    console.log("Total classes:", totalClasses);
+    res.status(200).json({ totalClasses });
+  } catch (error) {
+    console.error("Error getting total classes:", error);
+    res.status(500).json({
+      message: "Đã xảy ra lỗi khi lấy tổng số lớp học.",
+      error: error.message,
+    });
   }
 });
 
