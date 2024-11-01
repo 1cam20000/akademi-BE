@@ -111,4 +111,20 @@ const addStudentToClass = async (classId, studentId, teacherId) => {
   return classData;
 };
 
-export { getAllClasses, addClassesByAdmin, deleteClasses, addStudentToClass };
+// Hàm lấy tổng số lớp học
+const getTotalClasses = async () => {
+  try {
+    const totalClasses = await ClassModel.countDocuments({ isDelete: false }); // Đếm các lớp học không bị xóa
+    return totalClasses;
+  } catch (error) {
+    throw new Error("Unable to retrieve total classes"); // Ném lỗi nếu có vấn đề xảy ra
+  }
+};
+
+export {
+  getAllClasses,
+  addClassesByAdmin,
+  deleteClasses,
+  addStudentToClass,
+  getTotalClasses,
+};

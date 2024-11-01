@@ -39,6 +39,16 @@ const getAllStudents = async () => {
   return students;
 };
 
+//count students
+const getTotalStudents = async () => {
+  try {
+    const totalStudents = await StudentModel.countDocuments({ isDelete: false }); // Đếm số học sinh không bị xóa
+    return totalStudents;
+  } catch (error) {
+    throw new Error("Unable to retrieve total students"); // Ném lỗi nếu có vấn đề xảy ra
+  }
+};
+
 //update student
 const updateStudent = async (id, body) => {
   if (body.password) {
@@ -68,6 +78,7 @@ const getStudentProfile = async (query) => {
 };
 
 export {
+  getTotalStudents,
   createStudent,
   findOneStudent,
   findOneStudentWithoutPassword,
