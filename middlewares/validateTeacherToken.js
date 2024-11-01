@@ -1,21 +1,27 @@
 import jwt from "jsonwebtoken";
 
 const validateTeacherToken = (req, res, next) => {
-  const token = req.headers["authorization"]?.split(" ")[1]; // Lấy token từ header
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
 
-  if (!token) {
-    return res
-      .status(403)
-      .json({ message: "Không có token, truy cập bị từ chối" });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ message: "Token không hợp lệ" });
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "Access Denied: No token provided" });
     }
-    req.teacher = decoded; // Lưu thông tin giáo viên vào request
-    next(); // Tiếp tục đến middleware hoặc route tiếp theo
-  });
+
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.teacher = verified;
+
+    // Kiểm tra role là teacher
+    if (req.teacher.role !== "teacher") {
+      return res.status(403).json({ message: "Access Denied: Not a teacher" });
+    }
+
+    next();
+  } catch (error) {
+    res.status(400).json({ message: "Invalid Token: " + error.message });
+  }
 };
 
 export { validateTeacherToken };

@@ -11,7 +11,13 @@ import {
   deleteClasses,
   getAllClasses,
 } from "../services/Class.service.js";
-import { deleteStudent, getAllStudents, getStudentProfile, getStudentProfileByStudentId, updateStudent } from "../services/student.service.js";
+import {
+  deleteStudent,
+  getAllStudents,
+  getStudentProfile,
+  getStudentProfileByStudentId,
+  updateStudent,
+} from "../services/student.service.js";
 import { deleteTeachers, getAllTeachers } from "../services/teacher.service.js";
 
 const adminRouter = express.Router();
@@ -69,40 +75,50 @@ adminRouter.get("/all-students", validateAdminToken, async (req, res) => {
 });
 
 // Admin xóa sinh viên
-adminRouter.delete("/delete-student/:id", validateAdminToken, async (req, res) => {
-  const studentId = req.params.id;
-  try {
-    const deletedStudent = await deleteStudent(studentId);
-    if (!deletedStudent) {
-      return res.status(404).json({ message: "Không tìm thấy sinh viên để xóa" });
+adminRouter.delete(
+  "/delete-student/:id",
+  validateAdminToken,
+  async (req, res) => {
+    const studentId = req.params.id;
+    try {
+      const deletedStudent = await deleteStudent(studentId);
+      if (!deletedStudent) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy sinh viên để xóa" });
+      }
+      res.status(200).json({
+        message: "Xóa sinh viên thành công",
+        data: deletedStudent,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
     }
-    res.status(200).json({
-      message: "Xóa sinh viên thành công",
-      data: deletedStudent,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
   }
-});
+);
 
 // Admin lấy thông tin hồ sơ sinh viên
-adminRouter.get("/profile-student/:studentId", validateAdminToken, async (req, res) => {
-  const studentId = req.params.studentId;
-  try {
-    const studentProfile = await getStudentProfileByStudentId(studentId);
-    if (!studentProfile) {
-      return res.status(404).json({ message: "Không tìm thấy sinh viên" });
+adminRouter.get(
+  "/profile-student/:studentId",
+  validateAdminToken,
+  async (req, res) => {
+    const studentId = req.params.studentId;
+    try {
+      const studentProfile = await getStudentProfileByStudentId(studentId);
+      if (!studentProfile) {
+        return res.status(404).json({ message: "Không tìm thấy sinh viên" });
+      }
+      res.status(200).json({
+        message: "Lấy thông tin sinh viên thành công",
+        data: studentProfile,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
     }
-    res.status(200).json({
-      message: "Lấy thông tin sinh viên thành công",
-      data: studentProfile,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
   }
-});
+);
 
 // Admin cập nhật thông tin sinh viên
 adminRouter.put("/update-student/:id", validateAdminToken, async (req, res) => {
@@ -139,8 +155,28 @@ adminRouter.post("/add-teacher", validateAdminToken, async (req, res) => {
 adminRouter.get("/all-teachers", validateAdminToken, getAllTeachers);
 
 // admin xóa giáo viên
-adminRouter.delete("/teachers/:teacherId", validateAdminToken, deleteTeachers);
-
+adminRouter.delete(
+  "/delete-teacher/:teacherId",
+  validateAdminToken,
+  async (req, res) => {
+    const teacherId = req.params.teacherId;
+    try {
+      const deletedTeacher = await deleteTeachers(teacherId);
+      if (!deletedTeacher) {
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy giáo viên để xóa" });
+      }
+      res.status(200).json({
+        message: "Xóa giáo viên thành công",
+        data: deletedTeacher,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
 
 ////////////////////////////////////////////////////////////////
 

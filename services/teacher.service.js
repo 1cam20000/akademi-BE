@@ -70,6 +70,7 @@ const teacherLogin = async (req, res) => {
           address,
           degree,
           _id,
+          role: "teacher",
         };
 
         // Tạo token với thông tin giáo viên
@@ -142,20 +143,10 @@ const getStudentDetails = async (studentId) => {
   return student;
 };
 
-const deleteTeachers = async (req, res) => {
-  try {
-    await TeacherModel.findOneAndDelete({
-      _id: req.body.teacherId,
-    });
-
-    res.status(201).json({
-      message: "Delete teacher's information successfully",
-    });
-  } catch (error) {
-    res.status(400).json({
-      message: `Delete teacher controller error: ${error.message}`,
-    });
-  }
+//xoa giao vien
+const deleteTeachers = async (id) => {
+  const deleteTeacher = await TeacherModel.findByIdAndDelete(id);
+  return deleteTeacher;
 };
 
 // Tìm giáo viên qua email
@@ -175,7 +166,7 @@ const getTeacherProfile = async (teacherId) => {
 // cap nhat diem so cho sinh vien
 const updateStudentGrades = async (req, res) => {
   const { classId } = req.params;
-  const { studentId, grade } = req.body; 
+  const { studentId, grade } = req.body;
 
   try {
     const classData = await ClassModel.findById(classId).populate("students");
@@ -190,14 +181,18 @@ const updateStudentGrades = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    const classIndex = student.classes.findIndex(c => c.classId.equals(classId));
+    const classIndex = student.classes.findIndex((c) =>
+      c.classId.equals(classId)
+    );
 
     if (classIndex !== -1) {
-      student.classes[classIndex].grade = grade; 
+      student.classes[classIndex].grade = grade;
       await student.save();
       return res.status(200).json({ message: "Grades updated successfully" });
     } else {
-      return res.status(404).json({ message: "Student not enrolled in this class" });
+      return res
+        .status(404)
+        .json({ message: "Student not enrolled in this class" });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -207,7 +202,7 @@ const updateStudentGrades = async (req, res) => {
 // Phương thức xóa điểm số
 const deleteStudentGrade = async (req, res) => {
   const { classId } = req.params;
-  const { studentId } = req.body; 
+  const { studentId } = req.body;
 
   try {
     const student = await StudentModel.findOne({ studentId });
@@ -216,7 +211,9 @@ const deleteStudentGrade = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    const classIndex = student.classes.findIndex(c => c.classId.equals(classId));
+    const classIndex = student.classes.findIndex((c) =>
+      c.classId.equals(classId)
+    );
 
     if (classIndex !== -1) {
       // Xóa điểm số
@@ -224,7 +221,9 @@ const deleteStudentGrade = async (req, res) => {
       await student.save();
       return res.status(200).json({ message: "Grade deleted successfully" });
     } else {
-      return res.status(404).json({ message: "Student not enrolled in this class" });
+      return res
+        .status(404)
+        .json({ message: "Student not enrolled in this class" });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });

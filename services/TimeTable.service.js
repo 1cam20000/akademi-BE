@@ -22,6 +22,10 @@ const getTimeTableByClass = async (req, res) => {
 
   try {
     const timeTableByClass = await TimeTableModel.find({ grade });
+    // console.log(
+    //   "🚀 ~ getTimeTableByClass ~ timeTableByClass:",
+    //   timeTableByClass
+    // );
 
     res.status(200).json({
       message: `Get timetable of class successfully`,
@@ -85,28 +89,24 @@ const addTimeTable = async (req, res) => {
 };
 
 const deleteTimeTable = async (req, res) => {
-  // const { id } = req.params
-
   try {
+    // Tìm và xóa thời khóa biểu
     const timetable = await TimeTableModel.findOneAndDelete({
       _id: req.body.timetableId,
     });
-    res.status(201).json({
+
+    // Kiểm tra xem thời khóa biểu có tồn tại không
+    if (!timetable) {
+      return res.status(404).json({
+        message: "Timetable not found",
+      });
+    }
+
+    // Trả về thông tin thời khóa biểu đã xóa
+    res.status(200).json({
       message: "Delete timetable successfully",
+      data: timetable, // Thông tin thời khóa biểu đã xóa
     });
-
-    // if (timetable) {
-    //     await timetable.destroy();
-    //     res.status(201).json({
-    //         message: "Delete timetable successfully"
-    //     })
-    // }
-
-    // else {
-    //     res.status(401).json({
-    //         message: "Delete timetable failed"
-    //     })
-    // }
   } catch (error) {
     res.status(400).json({
       message: `Delete timetable controller error: ${error.message}`,
@@ -115,17 +115,22 @@ const deleteTimeTable = async (req, res) => {
 };
 
 const updateTimeTable = async (req, res) => {
-  // const { class_id, day, time, subject } = req.body
-
   try {
-    await TimeTableModel.findOneAndUpdate(
-      {
-        _id: req.body.timetableId,
-      },
-      req.body.payload
+    const updatedTimetable = await TimeTableModel.findOneAndUpdate(
+      { _id: req.body.timetableId },
+      req.body.payload,
+      { new: true } // Trả về tài liệu đã được cập nhật
     );
-    res.status(201).json({
+
+    if (!updatedTimetable) {
+      return res.status(404).json({
+        message: "Timetable not found",
+      });
+    }
+
+    res.status(200).json({
       message: "Update timetable's information successfully",
+      data: updatedTimetable,
     });
   } catch (error) {
     res.status(400).json({

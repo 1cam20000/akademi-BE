@@ -20,31 +20,34 @@ const getAttendance = async (req, res) => {
 
 //them tkb
 const addAttendance = async (req, res) => {
-
-    const { attendanceData } = req.body
+    const { attendanceData } = req.body;
 
     try {
         if (!attendanceData || !Array.isArray(attendanceData) || attendanceData.length === 0) {
-            handleValidationError("Attendance data is missing or invalid!", 400);
-            // handleValidationError("Attendance dat", 300);
+            return res.status(400).json({
+                success: false,
+                message: "Attendance data is missing or invalid!",
+            });
         }
+
         const attendanceRecords = await Promise.all(attendanceData.map(async (record) => {
             const { student, status } = record;
             return await AttendanceModel.create({ student, status });
         }));
+
         res.status(200).json({
             success: true,
             message: "Attendance marked successfully!",
             attendanceRecords
         });
 
-
     } catch (error) {
         res.status(400).json({
             message: `Add attendance controller error: ${error.message}`,
         });
     }
-}
+};
+
 
 
 export { getAttendance, addAttendance }
