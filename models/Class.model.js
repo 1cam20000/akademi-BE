@@ -4,13 +4,13 @@ const classSchema = new Schema(
   {
     className: {
       type: String,
-      required: [true, "Grade is required"],
+      required: [true, "Tên lớp học là bắt buộc"],
       unique: true,
     },
     teacher: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Teacher",
-      required: [true, "Teacher is required"],
+      required: [true, "Giáo viên là bắt buộc"],
     },
     students: [
       {
@@ -21,10 +21,6 @@ const classSchema = new Schema(
     isDelete: {
       type: Boolean,
       default: false,
-    },
-    grade: {
-      type: String,
-      default: "ungraded",
     },
   },
   {

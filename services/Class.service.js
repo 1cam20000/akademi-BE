@@ -18,7 +18,7 @@ const getAllClasses = async (req, res) => {
 
 // Admin thêm lớp học
 const addClassesByAdmin = async (req, res) => {
-  const { className, teacher } = req.body;
+  const { className, teacher } = req.body; // Chỉ cần className và teacher
   try {
     if (!className || !teacher) {
       throw new Error(
@@ -26,11 +26,8 @@ const addClassesByAdmin = async (req, res) => {
       );
     }
 
-    // Kiểm tra xem lớp học đã tồn tại chưa, loại trừ các lớp bị xóa
-    const existingClass = await ClassModel.findOne({
-      className,
-      isDelete: false,
-    });
+    // Kiểm tra xem lớp học đã tồn tại chưa
+    const existingClass = await ClassModel.findOne({ className });
     if (existingClass) {
       throw new Error("Lớp học đã tồn tại");
     }
@@ -49,6 +46,7 @@ const addClassesByAdmin = async (req, res) => {
     });
     await newClass.save();
 
+    // Cập nhật lớp học cho giáo viên
     teacherData.teacherClass.push(newClass._id);
     await teacherData.save();
 
@@ -57,7 +55,7 @@ const addClassesByAdmin = async (req, res) => {
       data: {
         _id: newClass._id,
         className: newClass.className,
-        teacherName: teacherData.firstName + " " + teacherData.lastName,
+        teacherName: `${teacherData.firstName} ${teacherData.lastName}`,
         students: newClass.students,
       },
     });
