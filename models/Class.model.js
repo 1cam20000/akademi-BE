@@ -22,6 +22,10 @@ const classSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    grade: {
+      type: String,
+      default: "ungraded",
+    },
   },
   {
     timestamps: true,
