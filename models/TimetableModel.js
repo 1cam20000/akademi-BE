@@ -2,9 +2,9 @@ import mongoose, { Schema } from "mongoose";
 
 const timeTableSchema = new Schema(
   {
-    grade: {
-      // type: mongoose.Schema.Types.ObjectId,
-      // ref: 'classes',
+    className: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "classes",
       type: String,
       required: [true, "class is required"],
     },

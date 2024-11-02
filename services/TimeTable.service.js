@@ -18,10 +18,10 @@ const getAllTimeTables = async (req, res) => {
 };
 
 const getTimeTableByClass = async (req, res) => {
-  const { grade } = req.body;
+  const { className } = req.body;
 
   try {
-    const timeTableByClass = await TimeTableModel.find({ grade });
+    const timeTableByClass = await TimeTableModel.find({ className });
     // console.log(
     //   "🚀 ~ getTimeTableByClass ~ timeTableByClass:",
     //   timeTableByClass
@@ -39,14 +39,13 @@ const getTimeTableByClass = async (req, res) => {
 };
 
 const addTimeTable = async (req, res) => {
-  const { grade, day, time, name } = req.body;
-
+  const { className, day, time, name } = req.body;
   try {
-    if (!grade || !day || !time || !name) {
+    if (!className || !day || !time || !name) {
       throw new Error("Missing anything");
     }
 
-    const existingClass = await ClassModel.findOne({ grade });
+    const existingClass = await ClassModel.findOne({ className });
 
     if (!existingClass) {
       throw new Error("Class not in valid");
@@ -59,13 +58,10 @@ const addTimeTable = async (req, res) => {
     }
 
     const existingElement = await TimeTableModel.find({});
-    // console.log(existingElement.grade);
-    // console.log(existingElement.day);
-    // console.log(existingElement.time);
 
     existingElement.forEach((element) => {
       if (
-        element.grade === grade &&
+        element.className === className &&
         element.day === day &&
         element.time === time
       ) {
